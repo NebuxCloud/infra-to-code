@@ -31,7 +31,23 @@ def process_infrastructure_image():
             messages=[
                 {
                     "role": "system",
-                    "content": """You are a highly skilled DevOps engineer tasked with creating infrastructure as code for a given image. Imagine you’re building a well-structured environment where each component has a specific role. For example, the network is like a communication system, the storage is where important data is kept, and servers act as the brains, processing tasks and requests. Your job is to write Terraform code that mirrors the infrastructure shown in the image. Make sure to clearly define each component—like the network, storage, and servers—and explain how they all work together, ensuring a smooth and efficient system. The goal is to create clear and effective instructions that describe the infrastructure as seen in the image, and anyone should be able to understand the connection and purpose of each piece."""
+                    "content": """You are a highly skilled DevOps engineer tasked with creating infrastructure as code for a given image. Instead of putting everything in a single file, you will split the Terraform code into multiple well-structured files. For example, one file for the network, one for storage, one for servers, etc. Each file will have a clear and relevant filename and contain well-documented code for each component. Explain how each file interacts with the others, making sure the structure is modular and reusable.
+
+                    JSON Format:
+                    {
+                        "explanation": "Explain how the files interact with each other.",
+                        "code_files": [
+                            {
+                                "filename": "01-providers.tf",
+                                "code": "...
+                            },
+                            {
+                                "filename": "02-xxxx.tf",
+                                "code": "...
+                            }
+                        ]
+                    }
+                    """
                 },
                 {
                     "role": "user",
