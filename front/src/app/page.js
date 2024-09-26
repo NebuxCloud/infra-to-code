@@ -21,6 +21,33 @@ export default function Home() {
     setFile(e.target.files[0]);
   };
 
+  const resizeImage = (img) => {
+    const maxWidth = 800;
+    const maxHeight = 800;
+    let width = img.width;
+    let height = img.height;
+
+    if (width > height) {
+      if (width > maxWidth) {
+        height = Math.floor((height * maxWidth) / width);
+        width = maxWidth;
+      }
+    } else {
+      if (height > maxHeight) {
+        width = Math.floor((width * maxHeight) / height);
+        height = maxHeight;
+      }
+    }
+
+    const canvas = document.createElement("canvas");
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, width, height);
+
+    return canvas.toDataURL("image/jpeg", 0.8).split(",")[1];
+  };
+
   const convertImageToBase64 = (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -29,14 +56,30 @@ export default function Home() {
         img.src = event.target.result;
 
         img.onload = () => {
-          const canvas = document.createElement("canvas");
-          const ctx = canvas.getContext("2d");
+          EXIF.getData(file, function () {
+            const orientation = EXIF.getTag(this, "Orientation");
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
 
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx.drawImage(img, 0, 0);
-          const base64String = canvas.toDataURL("image/jpeg", 0.95);
-          resolve(base64String.split(",")[1]);
+            canvas.width = img.width;
+            canvas.height = img.height;
+
+            // Adjust orientation based on EXIF data
+            if (orientation === 6) {
+              ctx.rotate((90 * Math.PI) / 180);
+              ctx.translate(0, -canvas.height);
+            } else if (orientation === 3) {
+              ctx.rotate((180 * Math.PI) / 180);
+              ctx.translate(-canvas.width, -canvas.height);
+            } else if (orientation === 8) {
+              ctx.rotate((-90 * Math.PI) / 180);
+              ctx.translate(-canvas.width, 0);
+            }
+
+            ctx.drawImage(img, 0, 0);
+            const base64String = resizeImage(img); // Resize and remove metadata
+            resolve(base64String);
+          });
         };
 
         img.onerror = (error) => {
