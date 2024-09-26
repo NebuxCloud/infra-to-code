@@ -6,6 +6,7 @@ import { saveAs } from "file-saver";
 import Prism from "prismjs";
 import ReactMarkdown from "react-markdown"; // Importing react-markdown
 import "prismjs/themes/prism-tomorrow.css"; // Importing Prism.js theme
+import EXIF from "exif-js"; // Importing exif-js for orientation handling
 
 export default function Home() {
   const [file, setFile] = useState(null);
