@@ -1,0 +1,39 @@
+service: infra-to-code-api
+
+plugins:
+  - serverless-dotenv-plugin
+
+package:
+  patterns:
+    - "!data/**"
+    - "!**/__pycache__/**"
+  individually: true
+
+provider:
+  name: aws
+  runtime: python3.11
+  region: eu-west-1
+  architecture: x86_64
+  timeout: 300
+  stage: production
+  ecr:
+    images:
+      infra-to-code-api:
+        path: ./
+        platform: linux/amd64
+  environment:
+    OPENAI_API_KEY: "${env:OPENAI_API_KEY}"
+  iam:
+    role:
+      statements: []
+
+functions:
+  rest:
+    environment:
+      AWS_LWA_INVOKE_MODE: response_stream
+    url:
+      invokeMode: RESPONSE_STREAM
+      cors: true
+    image:
+      name: infra-to-code-api
+      command: ["lambda.handle_rest"]
